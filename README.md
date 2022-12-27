@@ -26,3 +26,51 @@ describe("Compute", () => {
     expect(result).toBe(2);
   });
 ```
+
+---
+
+## Arrays and string
+
+## Greet
+
+### greet.ts
+
+```typescript
+export function greet(name: string): string {
+  return "Welcome " + name;
+}
+```
+
+### greet.test.ts
+
+```typescript
+describe("greet", () => {
+  it("should include the name in the message", () => {
+    const result = greet("Diego");
+    expect(result).toContain("Diego");
+  });
+});
+```
+
+## GetCurrencies
+
+### getCurrencies.ts
+
+```typescript
+export function getCurrencies(): string[] {
+  return ["USD", "AUD", "EUR"];
+}
+```
+
+### getCurrencies.test.ts
+
+```typescript
+describe("getCurrencies", () => {
+  it("should return the supported currencies", () => {
+    const result = getCurrencies();
+    expect(result).toContain("USD");
+    expect(result).toContain("AUD");
+    expect(result).toContain("EUR");
+  });
+});
+```
