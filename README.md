@@ -151,7 +151,7 @@ export class TodoFormComponent {
 
 ```typescript
 describe("TodoFormComponent", () => {
-  var component: TodoFormComponent;
+  let component: TodoFormComponent;
 
   beforeEach(() => {
     component = new TodoFormComponent(new FormBuilder());
@@ -166,6 +166,125 @@ describe("TodoFormComponent", () => {
     const control = component.form.get("name");
     control.setValue("");
     expect(control.valid).toBeFaksy();
+  });
+});
+```
+
+---
+
+## Event Emitters
+
+## vote.component.ts
+
+```typescript
+export class VoteComponent {
+  totalVotes = 0;
+  @Output() voteChanged = new EventEmitter();
+
+  upVote(): void {
+    this.totalVotes++;
+    this.voteChanged.emit(this.totalVotes);
+  }
+}
+```
+
+## vote.component.test.ts
+
+```typescript
+describe("VoteComponent", () => {
+  let component: VoteComponent;
+
+  beforeEach(() => {
+    component = new VoteComponent();
+  });
+
+  it("should raise voteChanged event whe upvoted", () => {
+    let totalVotes = null;
+    component.voteChanged.subscribe((tv) => (totalVotes = tv));
+    component.upVote();
+    expect(totalVotes).not.toBeNull();
+    expect(totalVotes).toBe(1);
+  });
+});
+```
+
+---
+
+## Services
+
+## todos.service.ts
+
+```typescript
+export class TodoService {
+  constructor(private http: Http) {}
+
+  add(todo) {
+    return this.http.post("...", todo).map((r) => r.json());
+  }
+
+  getTodos() {
+    return this.http.get("...").map((r) => r.json());
+  }
+
+  delete(id) {
+    return this.http.delete("...").map((r) => r.json());
+  }
+}
+```
+
+## todos.component.ts
+
+```typescript
+export class TodosComponent implements OnInit {
+  todos: any[] = [];
+  message;
+
+  constructor(private service: TodoService) {}
+
+  ngOnInit() {
+    this.service.getTodos().subscribe((t) => (this.todos = t));
+  }
+
+  add() {
+    var newTodo = { title: "... " };
+    this.service.add(newTodo).subscribe(
+      (t) => this.todos.push(t),
+      (err) => (this.message = err)
+    );
+  }
+
+  delete(id) {
+    if (confirm("Are you sure?")) this.service.delete(id).subscribe();
+  }
+}
+```
+
+## todos.component.spec.ts
+
+```typescript
+describe("TodosComponent", () => {
+  let component: TodosComponent;
+  let service: TodoService;
+
+  beforeEach(() => {
+    service = new TodoService(null);
+    component = new TodosComponent(service);
+  });
+
+  it("should set todos property with the items returned from the service", () => {
+    let todos = [
+      { id: 1, title: "a" },
+      { id: 2, title: "b" },
+      { id: 3, title: "c" },
+    ];
+
+    spyOn(service, "getTodos").and.callFake(() => {
+      return of(todos);
+    });
+    component.ngOnInit();
+    expect(component.todos.length).toBeGreaterThan(0);
+    expect(component.todos.length).toBe(3);
+    expect(component.todos).toBe(todos);
   });
 });
 ```
