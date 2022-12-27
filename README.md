@@ -286,5 +286,41 @@ describe("TodosComponent", () => {
     expect(component.todos.length).toBe(3);
     expect(component.todos).toBe(todos);
   });
+
+  it("should call the server to save the changes shen a new todo item is added", () => {
+    let spy = spyOn(service, "add").and.callFake((todo) => {
+      return of([]);
+    });
+    component.add();
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it("should add the new todo returned from the server", () => {
+    let todo = { id: 1 };
+    let spy = spyOn(service, "add").and.returnValue(of([todo]));
+    component.add();
+    expect(component.todos.indexOf(todo)).toBeGreaterThan(-1);
+  });
+
+  it("should set the message property if server returns and error when adding a new todo", () => {
+    let error = "Error from the server";
+    let spy = spyOn(service, "add").and.returnValue(throwError(() => error));
+    component.add();
+    expect(component.message).toBe(error);
+  });
+
+  it("should call the server to delete a todo item if the user confirms", () => {
+    spyOn(window, "confirm").and.returnValue(true);
+    let spy = spyOn(service, "delete").and.returnValue(of([]));
+    component.delete(1);
+    expect(spy).toHaveBeenCalledWith(1);
+  });
+
+  it("should NOT call the server to delete a todo item if the user cancels", () => {
+    spyOn(window, "confirm").and.returnValue(false);
+    let spy = spyOn(service, "delete").and.returnValue(of([]));
+    component.delete(1);
+    expect(spy).not.toHaveBeenCalled();
+  });
 });
 ```
