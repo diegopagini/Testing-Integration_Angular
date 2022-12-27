@@ -74,3 +74,98 @@ describe("getCurrencies", () => {
   });
 });
 ```
+
+---
+
+## Setup and teardown
+
+## vote.component.ts
+
+```typescript
+export class VoteComponent {
+  totalVotes = 0;
+
+  upVote(): void {
+    this.totalVotes++;
+  }
+
+  downVote(): void {
+    this.totalVotes--;
+  }
+}
+```
+
+## vote.component.test.ts
+
+```typescript
+import { VoteComponent } from "./vote.component";
+
+describe("VoteComponent", () => {
+  // Arrange
+  let component: VoteComponent;
+
+  beforeEach(() => {
+    // set up
+    component = new VoteComponent();
+  });
+
+  afterEach(() => {
+    // tear down
+    component.totalVotes = 0;
+  });
+
+  it("should increment totalVotes when upvoted", () => {
+    // Act
+    component.upVote();
+    // Assert
+    expect(component.totalVotes).toBe(1);
+  });
+
+  it("should decrement totalVotes when upvoted", () => {
+    component.downVote();
+    expect(component.totalVotes).toBe(-1);
+  });
+});
+```
+
+---
+
+## Forms
+
+## todo-form.component.ts
+
+```typescript
+export class TodoFormComponent {
+  form: FormGroup;
+
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      name: ["", Validators.required],
+      email: [""],
+    });
+  }
+}
+```
+
+## todo-form.component.test.ts
+
+```typescript
+describe("TodoFormComponent", () => {
+  var component: TodoFormComponent;
+
+  beforeEach(() => {
+    component = new TodoFormComponent(new FormBuilder());
+  });
+
+  it("should create a form with 2 controls", () => {
+    expect(component.form.contains("name")).toBeTruthy();
+    expect(component.form.contains("email")).toBeTruthy();
+  });
+
+  it("should make the name control required", () => {
+    const control = component.form.get("name");
+    control.setValue("");
+    expect(control.valid).toBeFaksy();
+  });
+});
+```
