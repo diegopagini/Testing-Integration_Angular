@@ -1,7 +1,5 @@
 # Testing
 
-## Compute
-
 ### compute.ts
 
 ```typescript
@@ -31,8 +29,6 @@ describe("Compute", () => {
 
 ## Arrays and string
 
-## Greet
-
 ### greet.ts
 
 ```typescript
@@ -51,8 +47,6 @@ describe("greet", () => {
   });
 });
 ```
-
-## GetCurrencies
 
 ### getCurrencies.ts
 
@@ -79,7 +73,7 @@ describe("getCurrencies", () => {
 
 ## Setup and teardown
 
-## vote.component.ts
+### vote.component.ts
 
 ```typescript
 export class VoteComponent {
@@ -95,7 +89,7 @@ export class VoteComponent {
 }
 ```
 
-## vote.component.test.ts
+### vote.component.test.ts
 
 ```typescript
 import { VoteComponent } from "./vote.component";
@@ -132,7 +126,7 @@ describe("VoteComponent", () => {
 
 ## Forms
 
-## todo-form.component.ts
+### todo-form.component.ts
 
 ```typescript
 export class TodoFormComponent {
@@ -147,7 +141,7 @@ export class TodoFormComponent {
 }
 ```
 
-## todo-form.component.test.ts
+### todo-form.component.test.ts
 
 ```typescript
 describe("TodoFormComponent", () => {
@@ -174,7 +168,7 @@ describe("TodoFormComponent", () => {
 
 ## Event Emitters
 
-## vote.component.ts
+### vote.component.ts
 
 ```typescript
 export class VoteComponent {
@@ -188,7 +182,7 @@ export class VoteComponent {
 }
 ```
 
-## vote.component.test.ts
+### vote.component.test.ts
 
 ```typescript
 describe("VoteComponent", () => {
@@ -212,7 +206,7 @@ describe("VoteComponent", () => {
 
 ## Services
 
-## todos.service.ts
+### todos.service.ts
 
 ```typescript
 export class TodoService {
@@ -232,7 +226,7 @@ export class TodoService {
 }
 ```
 
-## todos.component.ts
+### todos.component.ts
 
 ```typescript
 export class TodosComponent implements OnInit {
@@ -259,7 +253,7 @@ export class TodosComponent implements OnInit {
 }
 ```
 
-## todos.component.spec.ts
+### todos.component.spec.ts
 
 ```typescript
 describe("TodosComponent", () => {
@@ -327,7 +321,7 @@ describe("TodosComponent", () => {
 
 # INTEGRATION TESTS
 
-## voter.component.ts
+### voter.component.ts
 
 ```typescript
 export class VoterComponent {
@@ -357,7 +351,7 @@ export class VoterComponent {
 }
 ```
 
-## voter.component.html
+### voter.component.html
 
 ```html
 <div class="voter">
@@ -377,7 +371,7 @@ export class VoterComponent {
 </div>
 ```
 
-## voter.component.spec.ts
+### voter.component.spec.ts
 
 ```typescript
 describe("VoterComponent", () => {
@@ -424,7 +418,7 @@ describe("VoterComponent", () => {
 
 ---
 
-## todo.component.ts
+### todo.component.ts
 
 ```typescript
 export class TodosComponent implements OnInit {
@@ -451,7 +445,7 @@ export class TodosComponent implements OnInit {
 }
 ```
 
-## todo.service.ts
+### todo.service.ts
 
 ```typescript
 @Injectable()
@@ -479,7 +473,7 @@ export class TodoService {
 }
 ```
 
-## todo.component.spec.ts
+### todo.component.spec.ts
 
 ```typescript
 describe("TodosComponent", () => {
@@ -512,7 +506,7 @@ describe("TodosComponent", () => {
 
 ## Testing Routes
 
-## app.routes.ts
+### app.routes.ts
 
 ```typescript
 export const routes = [
@@ -523,7 +517,7 @@ export const routes = [
 ];
 ```
 
-## app.routes.spec.ts
+### app.routes.spec.ts
 
 ```typescript
 describe("routes", () => {
@@ -533,7 +527,7 @@ describe("routes", () => {
 });
 ```
 
-## user-details.component.ts
+### user-details.component.ts
 
 ```typescript
 export class UserDetailsComponent implements OnInit {
@@ -551,7 +545,7 @@ export class UserDetailsComponent implements OnInit {
 }
 ```
 
-## user-details.component.spec.ts
+### user-details.component.spec.ts
 
 ```typescript
 @Injectable()
@@ -611,6 +605,52 @@ describe("UserDetailsComponent", () => {
     const route: ActivatedRouteStub = TestBed.get(ActivatedRoute);
     route.push({ id: 0 });
     expect(spy).toHaveBeenCalledWith(["not-found"]);
+  });
+});
+```
+
+### app.component.html
+
+```html
+<nav>
+  <a routerLink="todos"></a>
+</nav>
+<router-outlet></router-outlet>
+```
+
+### app.component.spec.ts
+
+```typescript
+describe("AppComponent", () => {
+  let component: AppComponent;
+  let fixture: ComponentFixture<AppComponent>;
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      imports: [RouterTestingModule.withRoutes(routes)],
+      declarations: [AppComponent],
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it("should have a router outlet", () => {
+    const de = fixture.debugElement.query(By.directive(RouterOutlet));
+    expect(de).not.toBeNull();
+  });
+
+  it("should have a link to todos page", () => {
+    const debugElements = fixture.debugElement.queryAll(
+      By.directive(RouterLinkWithHref)
+    );
+    const index = debugElements.findIndex(
+      (de) => de.properties["href"] === "/todos"
+    );
+    expect(index).toBeGreatherThan(-1);
   });
 });
 ```
