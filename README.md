@@ -609,6 +609,8 @@ describe("UserDetailsComponent", () => {
 });
 ```
 
+---
+
 ### app.component.html
 
 ```html
@@ -651,6 +653,114 @@ describe("AppComponent", () => {
       (de) => de.properties["href"] === "/todos"
     );
     expect(index).toBeGreatherThan(-1);
+  });
+});
+```
+
+---
+
+## Directive
+
+### highlight.directive.ts
+
+```typescript
+export class HighlightDirective implements OnChanges {
+  defaultColor = "yellow";
+  @Input("highlight") bgColor: string;
+
+  constructor(private el: ElementRef) {}
+
+  ngOnChanges() {
+    this.el.nativeElement.style.backgroundColor =
+      this.bgColor || this.defaultColor;
+  }
+}
+```
+
+### highlight.directive.spec.ts
+
+```typescript
+@Component({
+  template: `
+    <p highlight="cyan">First</p>
+    <p highlight>Second</p>
+  `,
+})
+class DirectiveHostComponent {}
+
+describe("HighlightDirective", () => {
+  let fixture: ComponentFixture<DirectiveHostComponent>;
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [DirectiveHostComponent, HighlightDirective],
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(DirectiveHostComponent);
+    fixture.detectChanges();
+  });
+
+  it("should higlight the first element with cyan", () => {
+    const de = fixture.debugElement.queryAll(By.css("p"))[0];
+    expect(de.nativeElement.style.backgroundColor).toBe("cyan");
+  });
+
+  it("should higlight the first element with the default color", () => {
+    const de = fixture.debugElement.queryAll(By.css("p"))[1];
+    const directive = de.injector.get(HighlightDirective);
+    expect(de.nativeElement.style.backgroundColor).toBe(directive.defaultColor);
+  });
+});
+```
+
+---
+
+## Asynchronous operations
+
+### todos.component.ts
+
+```typescript
+export class TodosComponent implements OnInit {
+  todos: any[] = [];
+
+  constructor(private service: TodoService) {}
+
+  ngOnInit(): void {
+    this.service.getTodosPromise().then((t) => (this.todos = t));
+  }
+}
+```
+
+### todos.component.spec.ts
+
+```typescript
+describe("TodosComponent", () => {
+  let component: TodosComponent;
+  let fixture: ComponentFixture<TodosComponent>;
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [TodosComponent],
+      imports: [HttpClientTestingModule],
+      providers: [TodoService],
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(TodosComponent);
+    component = fixture.componentInstance;
+  });
+
+  it("should load todos from the server", fakeAsync () => {
+    const service = TestBed.get(TodoService);
+    spyOn(service, "getTodosPromise").and.returnValue(
+      Promise.resolve([1, 2, 3])
+    );
+    fixture.detectChanges();
+    tick();
+    expect(component.todos.length).toBe(3);
   });
 });
 ```
