@@ -421,3 +421,196 @@ describe("VoterComponent", () => {
   });
 });
 ```
+
+---
+
+## todo.component.ts
+
+```typescript
+export class TodosComponent implements OnInit {
+  todos: any[] = [];
+  message: string;
+
+  constructor(private service: TodoService) {}
+
+  ngOnInit(): void {
+    this.service.getTodos().subscribe((t) => (this.todos = t));
+  }
+
+  add(): void {
+    const newTodo = { title: "... " };
+    this.service.add(newTodo).subscribe(
+      (t) => this.todos.push(t),
+      (err) => (this.message = err)
+    );
+  }
+
+  delete(id): void {
+    if (confirm("Are you sure?")) this.service.delete(id).subscribe();
+  }
+}
+```
+
+## todo.service.ts
+
+```typescript
+@Injectable()
+export class TodoService {
+  constructor(private http: Http) {}
+
+  add(todo) {
+    return this.http.post("...", todo).map((r) => r.json());
+  }
+
+  getTodos() {
+    return this.http.get("...").map((r) => r.json());
+  }
+
+  getTodosPromise() {
+    return this.http
+      .get("...")
+      .map((r) => r.json())
+      .toPromise();
+  }
+
+  delete(id) {
+    return this.http.delete("...").map((r) => r.json());
+  }
+}
+```
+
+## todo.component.spec.ts
+
+```typescript
+describe("TodosComponent", () => {
+  let component: TodosComponent;
+  let fixture: ComponentFixture<TodosComponent>;
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [TodosComponent],
+      imports: [HttpClientTestingModule],
+      providers: [TodoService],
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(TodosComponent);
+    component = fixture.componentInstance;
+  });
+
+  it("should load todos from the server", () => {
+    const service = TestBed.get(TodoService);
+    spyOn(service, "getTodos").and.returnValue(of([1, 2, 3]));
+    fixture.detectChanges();
+    expect(component.todos.length).toBe(3);
+  });
+});
+```
+
+---
+
+## Testing Routes
+
+## app.routes.ts
+
+```typescript
+export const routes = [
+  { path: "users/:id", component: UserDetailsComponent },
+  { path: "users", component: UsersComponent },
+  { path: "todos", component: TodosComponent },
+  { path: "", component: HomeComponent },
+];
+```
+
+## app.routes.spec.ts
+
+```typescript
+describe("routes", () => {
+  it("should contain a route for /users", () => {
+    expect(routes).toContain({ path: "users", component: UsersComponent });
+  });
+});
+```
+
+## user-details.component.ts
+
+```typescript
+export class UserDetailsComponent implements OnInit {
+  constructor(private router: Router, private route: ActivatedRoute) {}
+
+  ngOnInit(): void {
+    this.route.params.subscribe((p) => {
+      if (p["id"] === 0) this.router.navigate(["not-found"]);
+    });
+  }
+
+  save(): void {
+    this.router.navigate(["users"]);
+  }
+}
+```
+
+## user-details.component.spec.ts
+
+```typescript
+@Injectable()
+class RouterStub {
+  navigate(params) {}
+}
+
+@Injectable()
+class ActivatedRouteStub {
+  private subject = new Subject();
+
+  push(value): void {
+    this.subject.next(value);
+  }
+
+  get params(): Observable<any> {
+    return this.subject.asObservable();
+  }
+}
+
+describe("UserDetailsComponent", () => {
+  let component: UserDetailsComponent;
+  let fixture: ComponentFixture<UserDetailsComponent>;
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [UserDetailsComponent],
+      providers: [
+        {
+          provide: Router,
+          useClass: RouterStub,
+        },
+        {
+          provide: ActivatedRoute,
+          useClass: ActivatedRouteStub,
+        },
+      ],
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(UserDetailsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it("should redirect the user to the users page after saving", () => {
+    const router = TestBed.get(Router);
+    const spy = spyOn(router, "navigate");
+    component.save();
+    expect(spy).toHaveBeenCalledWith(["users"]);
+  });
+
+  it("should navigate the user to the not found page when and invalid user id is passed", () => {
+    const router = TestBed.get(Router);
+    const spy = spyOn(router, "navigate");
+    const route: ActivatedRouteStub = TestBed.get(ActivatedRoute);
+    route.push({ id: 0 });
+    expect(spy).toHaveBeenCalledWith(["not-found"]);
+  });
+});
+```
