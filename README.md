@@ -324,3 +324,100 @@ describe("TodosComponent", () => {
   });
 });
 ```
+
+# INTEGRATION TESTS
+
+## voter.component.ts
+
+```typescript
+export class VoterComponent {
+  @Input() othersVote = 0;
+  @Input() myVote = 0;
+  @Output() vote = new EventEmitter();
+
+  upVote(): void {
+    if (this.myVote == 1) return;
+
+    this.myVote++;
+
+    this.vote.emit({ myVote: this.myVote });
+  }
+
+  downVote(): void {
+    if (this.myVote == -1) return;
+
+    this.myVote--;
+
+    this.vote.emit({ myVote: this.myVote });
+  }
+
+  get totalVotes(): number {
+    return this.othersVote + this.myVote;
+  }
+}
+```
+
+## voter.component.html
+
+```html
+<div class="voter">
+  <i
+    class="glyphicon glyphicon-menu-up vote-button"
+    [class.highlighted]="myVote == 1"
+    (click)="upVote()"
+  ></i>
+
+  <span class="vote-count">{{ totalVotes }}</span>
+
+  <i
+    class="glyphicon glyphicon-menu-down vote-button"
+    [class.highlighted]="myVote == -1"
+    (click)="downVote()"
+  ></i>
+</div>
+```
+
+## voter.component.spec.ts
+
+```typescript
+describe("VoterComponent", () => {
+  let component: VoterComponent;
+  let fixture: ComponentFixture<VoterComponent>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [VoterComponent],
+    });
+
+    fixture = TestBed.createComponent(VoterComponent);
+    component = fixture.componentInstance;
+  });
+
+  it("should render total votes", () => {
+    component.othersVote = 20;
+    component.myVote = 1;
+    fixture.detectChanges();
+
+    const debugElement = fixture.debugElement.query(By.css(".vote-count"));
+    const el: HTMLElement = debugElement.nativeElement;
+
+    expect(el.innerText).toContain(21);
+  });
+
+  it("should highlight the upvote button if I have upvoted", () => {
+    component.myVote = 1;
+    fixture.detectChanges();
+
+    const de = fixture.debugElement.query(By.css(".glyphicon-menu-up"));
+
+    expect(de.classes["highlighted"]).toBeTruthy();
+  });
+
+  it("should increase total votes when I click the upvote button", () => {
+    const button = fixture.debugElement.query(By.css(".glyphicon-menu-up"));
+    button.triggerEventHandler("click", null); // This is to click the button.
+
+    expect(component.totalVotes).toBe(1);
+  });
+});
+```
