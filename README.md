@@ -764,3 +764,20 @@ describe("TodosComponent", () => {
   });
 });
 ```
+
+---
+
+## fixture.debugElement.injector.get() (to remind)
+```typescript
+it('should have a getEmptyStateImage getter and return a value', () => {
+    spyOn(breakPointService, 'isMobile').and.returnValue(of(true));
+    const translateService =
+      fixture.debugElement.injector.get(TranslateService);
+    spyOnProperty(translateService, 'currentLang').and.returnValue('el');
+    spyOn(component, 'ngOnInit').and.callThrough();
+    fixture.detectChanges();
+    component.getEmptyStateImage.subscribe((value: string) => {
+      expect(value).toEqual('assets/images/no_assigned_homework-mobile-en.png');
+    });
+  });
+ ```
